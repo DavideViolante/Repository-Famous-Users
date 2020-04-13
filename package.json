@@ -1,0 +1,33 @@
+{
+  "name": "repository-famous-users",
+  "version": "1.0.0",
+  "description": "Find out notable GitHub users that interacted with a repository.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js",
+    "lint": "eslint ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavideViolante/Repository-Famous-Users.git"
+  },
+  "author": "DavideViolante",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DavideViolante/Repository-Famous-Users/issues"
+  },
+  "homepage": "https://github.com/DavideViolante/Repository-Famous-Users#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "mocha": "^7.1.1"
+  }
+}
