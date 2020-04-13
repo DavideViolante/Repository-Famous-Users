@@ -22,6 +22,7 @@ async function main(req, res, next) {
     }
     const firstResponse = await callGitHubRepos(params);
     const lastPage = getLastPage(firstResponse.headers.link);
+    console.log(`GitHub requests: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
     const promises = [];
     // Pages starts from 1, but we got it already
     for (let i = 2; i <= lastPage; i++) {
