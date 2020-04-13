@@ -12,9 +12,7 @@ const authHeader = {
   Authorization: `token ${process.env.GITHUB_TOKEN}`
 };
 
-console.log(process.env.GITHUB_TOKEN);
-
-async function main(req, res) {
+async function main(req, res, next) {
   try {
     const endpoints = ['stargazers', 'subscribers', 'forks'];
     const firstResponse = await callGitHubRepos(endpoints[0], params);
@@ -28,7 +26,6 @@ async function main(req, res) {
     let otherResponses = await Promise.all(promises);
     otherResponses = otherResponses.map(response => response.data);
     const data = [...firstResponse.data, ...otherResponses];
-    //const data = mockdata;
     const userPromises = [];
     for (const user of data) {
       userPromises.push(getGitHubUserInfo(user.login));
@@ -38,13 +35,15 @@ async function main(req, res) {
       .map(user => ({
         id: user.id,
         username: user.login,
+        avatar: user.avatar_url,
         bio: user.bio,
         company: (user.company || '').replace('@', ''),
         repos: user.public_repos,
         followers: user.followers,
       }))
       .sort((a, b) => b.followers - a.followers);
-    return res.json(userData);
+    res.locals.data = userData;
+    next();
   } catch (err) {
     return res.status(500).json(err.message);
   }

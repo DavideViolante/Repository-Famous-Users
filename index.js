@@ -2,12 +2,13 @@
 require('dotenv').config();
 const express = require('express');
 
-const main = require('./server/github');
+const getUsers = require('./server/github');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-//const { mockdata, mockusers } = require('./data');
+app.set('view engine', 'pug');
 
-app.get('/', main);
+app.get('/', getUsers, (req, res) => res.render('index', { users: res.locals.data }));
+
 app.listen(port, () => console.log(`App listening on port ${port}`));
