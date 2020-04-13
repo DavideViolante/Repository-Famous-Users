@@ -2,25 +2,30 @@
 const axios = require('axios');
 
 const githubApiUrl = 'https://api.github.com';
-const owner = 'davideviolante';
-let repo = 'gtav';
-const params = {
-  per_page: 100,
-  page: 1
-};
 const authHeader = {
   Authorization: `token ${process.env.GITHUB_TOKEN}`
 };
 
 async function main(req, res, next) {
   try {
-    const endpoints = ['stargazers', 'subscribers', 'forks'];
-    const firstResponse = await callGitHubRepos(endpoints[0], params);
+    const { owner, repo, endpoint } = req.params;
+    const validEndpoints = ['stargazers', 'subscribers', 'forks'];
+    if (!validEndpoints.includes(endpoint)) {
+      throw Error(`Invalid endpoint ${endpoint}, must be one of: ${validEndpoints}`);
+    }
+    const params = {
+      owner, repo, endpoint,
+      querystring: {
+        per_page: 100,
+        page: 1
+      }
+    }
+    const firstResponse = await callGitHubRepos(params);
     const lastPage = getLastPage(firstResponse.headers.link);
     const promises = [];
     // Pages starts from 1, but we got it already
     for (let i = 2; i <= lastPage; i++) {
-      params.page = i;
+      params.querystring.page = i;
       promises.push(callGitHubRepos(params));
     }
     let otherResponses = await Promise.all(promises);
@@ -28,7 +33,7 @@ async function main(req, res, next) {
     const data = [...firstResponse.data, ...otherResponses];
     const userPromises = [];
     for (const user of data) {
-      userPromises.push(getGitHubUserInfo(user.login));
+      userPromises.push(callGitHubUsers(user.login || user.owner.login));
     }
     let userData = await Promise.all(userPromises);
     userData = userData.map(response => response.data)
@@ -49,7 +54,7 @@ async function main(req, res, next) {
   }
 }
 
-function getGitHubUserInfo(username) {
+function callGitHubUsers(username) {
   return axios({
     method: 'GET',
     headers: authHeader,
@@ -57,12 +62,12 @@ function getGitHubUserInfo(username) {
   });
 }
 
-function callGitHubRepos(endpoint, params) {
+function callGitHubRepos(params) {
   return axios({
     method: 'GET',
     headers: authHeader,
-    url: `${githubApiUrl}/repos/${owner}/${repo}/${endpoint}`,
-    params: params
+    url: `${githubApiUrl}/repos/${params.owner}/${params.repo}/${params.endpoint}`,
+    params: params.querystring
   });
 }
 
