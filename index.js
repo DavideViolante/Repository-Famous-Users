@@ -30,10 +30,9 @@ async function main() {
     otherResponses = otherResponses.map(response => response.data);
     const data = [...firstResponse.data, ...otherResponses];
     //const data = mockdata;
-    const usernames = data.map(user => user.login);
     const userPromises = [];
-    for (const username of usernames) {
-      userPromises.push(getGitHubUserInfo(username));
+    for (const user of data) {
+      userPromises.push(getGitHubUserInfo(user.login));
     }
     let userData = await Promise.all(userPromises);
     userData = userData.map(response => response.data)
