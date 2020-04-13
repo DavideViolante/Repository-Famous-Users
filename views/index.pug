@@ -16,14 +16,14 @@ html
           th Username
           //th Bio
           th Company
-          th Followers ↓
+          th Followers
           th Repos
       tbody
         each user in users
           tr
             //td=user.id
             td
-              img(src=user.avatar width=50)
+              img(src=user.avatar width=40)
             td
               a(target="_blank" href="https://www.github.com/" + user.username)=user.username
             //td=user.bio

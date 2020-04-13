@@ -1,3 +1,7 @@
 body {
   padding: 2em;
 }
+
+img {
+  border-radius: 3px;
+}
