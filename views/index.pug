@@ -15,7 +15,9 @@ html
           th Avatar
           th Username
           //th Bio
+          th Location
           th Company
+          th Website
           th Followers
           th Repos
       tbody
@@ -27,8 +29,11 @@ html
             td
               a(target="_blank" href="https://www.github.com/" + user.username)=user.username
             //td=user.bio
+            td=user.location
             td
               a(target="_blank" href="https://www.github.com/" + user.company)=user.company
+            td
+              a(target="_blank" href=user.website) #{user.website}
             td=user.followers
             td=user.repos
             

@@ -22,7 +22,7 @@ async function main(req, res, next) {
     }
     const firstResponse = await callGitHubRepos(params);
     const lastPage = getLastPage(firstResponse.headers.link);
-    console.log(`GitHub requests: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
+    console.log(`GitHub requests before: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
     const promises = [];
     // Pages starts from 1, but we got it already
     for (let i = 2; i <= lastPage; i++) {
@@ -30,8 +30,8 @@ async function main(req, res, next) {
       promises.push(callGitHubRepos(params));
     }
     let otherResponses = await Promise.all(promises);
-    otherResponses = otherResponses.map(response => response.data);
-    const data = [...firstResponse.data, ...otherResponses];
+    otherResponses = otherResponses.map(response => response.data).flat();
+    const data = clean([...firstResponse.data, ...otherResponses]);
     const userPromises = [];
     for (const user of data) {
       userPromises.push(callGitHubUsers(user.login || user.owner.login));
@@ -43,9 +43,11 @@ async function main(req, res, next) {
         username: user.login,
         avatar: user.avatar_url,
         bio: user.bio,
+        location: user.location,
         company: (user.company || '').replace('@', ''),
-        repos: user.public_repos,
+        website: user.blog,
         followers: user.followers,
+        repos: user.public_repos,
       }))
       .sort((a, b) => b.followers - a.followers);
     res.locals.data = userData;
@@ -53,6 +55,14 @@ async function main(req, res, next) {
   } catch (err) {
     return res.status(500).json(err.message);
   }
+}
+
+function clean(data) {
+  return data
+    // Remove null and undefined
+    .filter(data => data)
+    // Remove duplicates
+    .filter((obj, i, self) => i === self.findIndex(item => item.login === obj.login));
 }
 
 function callGitHubUsers(username) {
