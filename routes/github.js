@@ -36,13 +36,11 @@ async function main(req, res, next) {
     const data = [...firstResponse.data, ...otherResponses];
     const userResponses = [];
     console.log(`Getting data for ${data.length} users...`);
-    for (const [i, user] of data.entries()) {
-      console.log(`Getting user ${i}...`);
-      const eachUserResponse = await callGitHubUsers(user.login || user.owner.login);
-      userResponses.push(eachUserResponse.data);
+    for (const user of data) {
+      userResponses.push(callGitHubUsers(user.login || user.owner.login));
     }
-    let userData = userResponses.flat();
-    userData = userData
+    let userData = await Promise.all(userResponses);
+    userData = userData.map(response => response.data)
       .map(user => ({
         id: user.id,
         username: user.login,
