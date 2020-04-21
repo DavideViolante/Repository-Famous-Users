@@ -1,5 +1,5 @@
 # Repository Famous Users
-Find out most followed GitHub users that interacted (starred, watched or forked) with a repository.
+Find out the most followed GitHub users that interacted (starred, watched or forked) with a repository.
 
 ### Usage
 1. Create a file called `.env`
