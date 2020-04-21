@@ -4,9 +4,9 @@ Find out most followed GitHub users that interacted (starred, watched or forked)
 ### Usage
 1. `npm start`
 2. Go to http://localhost:3000/:owner/:repo/:endpoint where:
-  2a. owner is the author of the repo, eg: `DavideViolante`
-  2b. repo is the name of the repo, eg: `Repository-Famous-Users`
-  2c. endpoint is one of the following: `stargazers`, `subscribers`, `forks`
+   * owner is the author of the repo, eg: `DavideViolante`
+   * repo is the name of the repo, eg: `Repository-Famous-Users`
+   * endpoint is one of the following: `stargazers`, `subscribers`, `forks`
 3. Wait until all the requests are completed
 4. View the resulting page
 
