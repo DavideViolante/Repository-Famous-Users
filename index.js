@@ -15,5 +15,6 @@ app.get('/:owner/:repo/:endpoint', getUsers, showIndex);
 app.listen(port, () => console.log(`Repository Famous Users listening on port ${port}`));
 
 function showIndex(req, res) {
-  res.render('index', { users: res.locals.data });
+  const { users, owner, repo, endpoint } = res.locals;
+  res.render('index', { users, owner, repo, endpoint });
 }

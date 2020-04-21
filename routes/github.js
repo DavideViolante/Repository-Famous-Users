@@ -39,8 +39,8 @@ async function main(req, res, next) {
     for (const user of data) {
       userResponses.push(callGitHubUsers(user.login || user.owner.login));
     }
-    let userData = await Promise.all(userResponses);
-    userData = userData.map(response => response.data)
+    let users = await Promise.all(userResponses);
+    users = users.map(response => response.data)
       .map(user => ({
         id: user.id,
         username: user.login,
@@ -53,7 +53,7 @@ async function main(req, res, next) {
         repos: user.public_repos,
       }))
       .sort((a, b) => b.followers - a.followers);
-    res.locals.data = userData;
+    res.locals = { users, owner, repo, endpoint };
     console.log('Done');
     console.log(`GitHub requests left: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
     next();
