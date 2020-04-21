@@ -20,24 +20,29 @@ async function main(req, res, next) {
         page: 1
       }
     }
+    console.log('Getting page 1...');
     const firstResponse = await callGitHubRepos(params);
+    console.log(`GitHub requests left: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
     const lastPage = getLastPage(firstResponse.headers.link);
-    console.log(`GitHub requests before: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
-    const promises = [];
-    // Pages starts from 1, but we got it already
+    console.log(`Total pages: ${lastPage}`);
+    let otherResponses = [];
     for (let i = 2; i <= lastPage; i++) {
+      console.log(`Getting page ${i}...`);
       params.querystring.page = i;
-      promises.push(callGitHubRepos(params));
+      const eachPageResponse = await callGitHubRepos(params);
+      otherResponses.push(eachPageResponse.data);
     }
-    let otherResponses = await Promise.all(promises);
-    otherResponses = otherResponses.map(response => response.data).flat();
-    const data = clean([...firstResponse.data, ...otherResponses]);
-    const userPromises = [];
-    for (const user of data) {
-      userPromises.push(callGitHubUsers(user.login || user.owner.login));
+    otherResponses = otherResponses.flat();
+    const data = [...firstResponse.data, ...otherResponses];
+    const userResponses = [];
+    console.log(`Getting data for ${data.length} users...`);
+    for (const [i, user] of data.entries()) {
+      console.log(`Getting user ${i}...`);
+      const eachUserResponse = await callGitHubUsers(user.login || user.owner.login);
+      userResponses.push(eachUserResponse.data);
     }
-    let userData = await Promise.all(userPromises);
-    userData = userData.map(response => response.data)
+    let userData = userResponses.flat();
+    userData = userData
       .map(user => ({
         id: user.id,
         username: user.login,
@@ -51,18 +56,12 @@ async function main(req, res, next) {
       }))
       .sort((a, b) => b.followers - a.followers);
     res.locals.data = userData;
+    console.log('Done');
+    console.log(`GitHub requests left: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
     next();
   } catch (err) {
     return res.status(500).json(err.message);
   }
-}
-
-function clean(data) {
-  return data
-    // Remove null and undefined
-    .filter(data => data)
-    // Remove duplicates
-    .filter((obj, i, self) => i === self.findIndex(item => item.login === obj.login));
 }
 
 function callGitHubUsers(username) {
@@ -82,14 +81,17 @@ function callGitHubRepos(params) {
   });
 }
 
-function getLastPage(rels) {
-  if (!rels) {
+function getLastPage(headersLink) {
+  if (!headersLink) {
     return 1;
   }
   const obj = {};
-  rels = rels.split(', ').map(rel => rel.replace(/<|>|rel=|"/g, ''))
-  rels.forEach(rel => {
+  // eg: headersLink = "<http...>; rel=last ..."
+  headersLink = headersLink.split(', ').map(rel => rel.replace(/<|>|rel=|"/g, ''))
+  headersLink.forEach(rel => {
+    // "http; last"
     const [link, info] = rel.split('; ');
+    // { last: link, ... }
     obj[info] = link;
   });
   return +obj.last.split('&page=')[1]; 
