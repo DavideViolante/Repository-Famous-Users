@@ -4,6 +4,7 @@
   "description": "Find out notable GitHub users that interacted with a repository.",
   "main": "index.js",
   "scripts": {
+    "start": "node index",
     "dev": "nodemon -e js,pug",
     "lint": "eslint ./"
   },
