@@ -31,7 +31,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^5.0.0",
-    "nodemon": "^2.0.9",
+    "nodemon": "^2.0.12",
     "pug-lint": "^2.6.0"
   }
 }
