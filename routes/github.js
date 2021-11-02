@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const githubApiUrl = 'https://api.github.com';
 const authHeader = {
-  Authorization: `token ${process.env.GITHUB_TOKEN}`
+  Authorization: `token ${process.env.GITHUB_TOKEN}`,
 };
 
 async function main(req, res, next) {
@@ -17,9 +17,9 @@ async function main(req, res, next) {
       owner, repo, endpoint,
       querystring: {
         per_page: 100,
-        page: 1
-      }
-    }
+        page: 1,
+      },
+    };
     console.log('Getting page 1...');
     const firstResponse = await callGitHubRepos(params);
     console.log(`GitHub requests left: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
@@ -40,19 +40,19 @@ async function main(req, res, next) {
       userResponses.push(callGitHubUsers(user.login || user.owner.login));
     }
     let users = await Promise.all(userResponses);
-    users = users.map(response => response.data)
-      .map(user => ({
-        id: user.id,
-        username: user.login,
-        avatar: user.avatar_url,
-        bio: user.bio,
-        location: user.location,
-        company: (user.company || '').replace('@', ''),
-        website: user.blog,
-        followers: user.followers,
-        repos: user.public_repos,
-      }))
-      .sort((a, b) => b.followers - a.followers);
+    users = users.map((response) => response.data)
+        .map((user) => ({
+          id: user.id,
+          username: user.login,
+          avatar: user.avatar_url,
+          bio: user.bio,
+          location: user.location,
+          company: (user.company || '').replace('@', ''),
+          website: user.blog,
+          followers: user.followers,
+          repos: user.public_repos,
+        }))
+        .sort((a, b) => b.followers - a.followers);
     res.locals = { users, owner, repo, endpoint };
     console.log('Done');
     console.log(`GitHub requests left: ${firstResponse.headers['x-ratelimit-remaining']}/${firstResponse.headers['x-ratelimit-limit']}`);
@@ -66,7 +66,7 @@ function callGitHubUsers(username) {
   return axios({
     method: 'GET',
     headers: authHeader,
-    url: `${githubApiUrl}/users/${username}`
+    url: `${githubApiUrl}/users/${username}`,
   });
 }
 
@@ -75,7 +75,7 @@ function callGitHubRepos(params) {
     method: 'GET',
     headers: authHeader,
     url: `${githubApiUrl}/repos/${params.owner}/${params.repo}/${params.endpoint}`,
-    params: params.querystring
+    params: params.querystring,
   });
 }
 
@@ -85,14 +85,14 @@ function getLastPage(headersLink) {
   }
   const obj = {};
   // eg: headersLink = "<http...>; rel=last ..."
-  headersLink = headersLink.split(', ').map(rel => rel.replace(/<|>|rel=|"/g, ''))
-  headersLink.forEach(rel => {
+  headersLink = headersLink.split(', ').map((rel) => rel.replace(/<|>|rel=|"/g, ''));
+  headersLink.forEach((rel) => {
     // "http; last"
     const [link, info] = rel.split('; ');
     // { last: link, ... }
     obj[info] = link;
   });
-  return +obj.last.split('&page=')[1]; 
+  return +obj.last.split('&page=')[1];
 }
 
 module.exports = main;
