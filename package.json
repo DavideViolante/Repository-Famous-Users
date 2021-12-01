@@ -27,7 +27,7 @@
   "devDependencies": {
     "eslint": "^8.1.0",
     "eslint-config-google": "^0.14.0",
-    "nodemon": "^2.0.14",
+    "nodemon": "^2.0.15",
     "pug-lint": "^2.6.0"
   }
 }
