@@ -28,6 +28,6 @@
     "eslint": "^8.37.0",
     "eslint-config-google": "^0.14.0",
     "nodemon": "^2.0.20",
-    "pug-lint": "^2.6.0"
+    "pug-lint": "^2.7.0"
   }
 }
