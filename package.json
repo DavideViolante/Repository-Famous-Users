@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/DavideViolante/Repository-Famous-Users#readme",
   "dependencies": {
-    "axios": "^1.6.7",
+    "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "pug": "^3.0.2"
